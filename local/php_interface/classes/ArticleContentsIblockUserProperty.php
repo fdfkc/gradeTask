@@ -96,7 +96,7 @@ class ArticleContentsIblockUserProperty
 
 		$bFirstField = true;
 
-		foreach($arSortedValues as $key => $arVals)
+		foreach($arSortedValues as $iCurrentValueId => $arCurrentValueProperties)
 		{
 
 			if($bFirstField == false)
@@ -107,22 +107,34 @@ class ArticleContentsIblockUserProperty
 			$bFirstField = false;
 		
 
-			$sFieldBlockWrapId = 'row_' . $key;
+			$sFieldBlockWrapId = 'row_' . $iCurrentValueId;
 
 			$sFieldHtml .= '
 			<div id="'. $sFieldBlockWrapId .'">
 				<p><b>Заголовок блока:</b></p>
-				<input type="text" size="70" name="' . $strHTMLControlName["VALUE"] . "[" . $key . '][TITLE]" value="'.htmlspecialcharsbx($arVals["VALUE"]["TITLE"]).'">
+				<input type="text" size="70" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][TITLE]" value="'.htmlspecialcharsbx($arCurrentValueProperties["VALUE"]["TITLE"]).'">
 				<p><b>Сортировка:</b></p>
-				<input type="text" size="5" name="' . $strHTMLControlName["VALUE"] . "[" . $key . '][SORT]" value="'.htmlspecialcharsbx($arVals["VALUE"]["SORT"]).'"><br>
+				<input type="text" size="5" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][SORT]" value="'.htmlspecialcharsbx($arCurrentValueProperties["VALUE"]["SORT"]).'"><br>
 				<p>Описание:</p>
-				<textarea rows="5" cols="60" name="' . $strHTMLControlName["VALUE"] . "[" . $key . '][DESCRIPTION]">'.htmlspecialcharsbx($arVals["VALUE"]["DESCRIPTION"]).'</textarea>
-				<p>Путь от кроня сайта до картинки</p>
-				<input type="text" size="70" name="' . $strHTMLControlName["VALUE"] . "[" . $key . '][IMAGE]" value="'.htmlspecialcharsbx($arVals["VALUE"]["IMAGE"]).'"><br>
-			';
+				<textarea rows="5" cols="60" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][DESCRIPTION]">'.htmlspecialcharsbx($arCurrentValueProperties["VALUE"]["DESCRIPTION"]).'</textarea>
+				<p>Картинка:</p>';
+				if(!empty($arCurrentValueProperties["VALUE"]["IMAGE"]))
+				{
+					$sFieldHtml .= CFile::ShowImage($arCurrentValueProperties["VALUE"]["IMAGE"], 200, 200, "border=1", "", true)."<br><br>";
+				}
+				$sFieldHtml .= '<input type="hidden" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][IMAGE][OLD_IMAGE_ID]" value="'.htmlspecialcharsbx($arCurrentValueProperties["VALUE"]["IMAGE"]).'">
+				<p>
+					<input type="checkbox" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][IMAGE][DELETE_OLD_IMAGE]" value="Y">
+					Удалить картинку из данного блока
+				</p>
+				<input type="file" name="' . $strHTMLControlName["VALUE"] . "[" . $iCurrentValueId . '][IMAGE]" accept=".jpg,. gif,. bmp,. png,. jpeg">
+				<br>
+				<br>';
 
 			
-			$sFieldHtml .= '<input type="button" style="height: auto;" value="Удалить блок" title="Удалить" onclick="document.getElementById(\''. $sFieldBlockWrapId .'\').parentNode.parentNode.remove()" />';
+
+			
+			$sFieldHtml .= '<input type="button" value="Удалить блок" title="Удалить" onclick="document.getElementById(\''. $sFieldBlockWrapId .'\').parentNode.parentNode.remove()" />';
 
 			$sFieldHtml .= "</div><hr>";
 
@@ -171,31 +183,31 @@ class ArticleContentsIblockUserProperty
 	 */
 	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
-
 		$sFieldHtml = "";
 		
 
 		$sFieldBlockWrapId = 'row_' . uniqid();
 
 		$sFieldHtml .= '
-		<div id="'. $sFieldBlockWrapId .'">
-			<p><b>Заголовок блока:</b></p>
-			<input type="text" size="70" name="' . $strHTMLControlName["VALUE"] . '[TITLE]" value="'.htmlspecialcharsbx($value["VALUE"]["TITLE"]).'">
-			<p><b>Сортировка:</b></p>
-			<input type="text" size="5" name="' . $strHTMLControlName["VALUE"] . '[SORT]" value="'.htmlspecialcharsbx($value["VALUE"]["SORT"]).'"><br>
-			<p>Описание:</p>
-			<textarea rows="5" cols="60" name="' . $strHTMLControlName["VALUE"] . '[DESCRIPTION]">'.htmlspecialcharsbx($value["VALUE"]["DESCRIPTION"]).'</textarea>
-		';
-
-		$arHTMLControlNameFileInput = $strHTMLControlName;
-		$arHTMLControlNameFileInput["VALUE"] = $strHTMLControlName["VALUE"] . "[IMAGE]";
-
-		$arValueFileInput = $value;
-		$arValueFileInput["VALUE"] = $value["VALUE"]["IMAGE"];
-
-		$sFieldHtml .= CIBlockPropertyFileMan::GetPropertyFieldHtml($arProperty, $arValueFileInput, $arHTMLControlNameFileInput);
-
-		$sFieldHtml .= "</div>";
+			<div id="'. $sFieldBlockWrapId .'">
+				<p><b>Заголовок блока:</b></p>
+				<input type="text" size="70" name="' . $strHTMLControlName["VALUE"] . '[TITLE]" value="'.htmlspecialcharsbx($value["VALUE"]["TITLE"]).'">
+				<p><b>Сортировка:</b></p>
+				<input type="text" size="5" name="' . $strHTMLControlName["VALUE"] . '[SORT]" value="'.htmlspecialcharsbx($value["VALUE"]["SORT"]).'"><br>
+				<p>Описание:</p>
+				<textarea rows="5" cols="60" name="' . $strHTMLControlName["VALUE"] . '[DESCRIPTION]">'.htmlspecialcharsbx($value["VALUE"]["DESCRIPTION"]).'</textarea>
+				<p>Картинка:</p>';
+				if(!empty($value["VALUE"]["IMAGE"]))
+				{
+					$sFieldHtml .= CFile::ShowImage($value["VALUE"]["IMAGE"], 200, 200, "border=1", "", true)."<br><br>";
+				}
+				$sFieldHtml .= '<input type="hidden" name="' . $strHTMLControlName["VALUE"] . '[IMAGE][OLD_IMAGE_ID]" value="'.htmlspecialcharsbx($value["VALUE"]["IMAGE"]).'">
+				<p>
+					<input type="checkbox" name="' . $strHTMLControlName["VALUE"] . '[IMAGE][DELETE_OLD_IMAGE]" value="Y">
+					Удалить картинку из данного блока
+				</p>
+				<input type="file" name="' . $strHTMLControlName["VALUE"] . '[IMAGE]" accept=".jpg,. gif,. bmp,. png,. jpeg">
+			</div>';
 
         return $sFieldHtml;
 	}
@@ -221,20 +233,35 @@ class ArticleContentsIblockUserProperty
 			!empty($value["VALUE"]["TITLE"])
 			|| !empty($value["VALUE"]["SORT"])
 			|| !empty($value["VALUE"]["DESCRIPTION"])
-			|| !empty($value["VALUE"]["IMAGE"])
+			|| !empty($value["VALUE"]["IMAGE"]["tmp_name"])
+			|| (
+				!empty($value["VALUE"]["IMAGE"]["OLD_IMAGE_ID"])
+				&& empty($value["VALUE"]["IMAGE"]["DELETE_OLD_IMAGE"])
+			)
 		)
 		{
 			if(empty($value["VALUE"]["TITLE"]))
 			{
-				$arErrors[] = 'Поле "Заголовок" обязательно для заполнения';
+				$arErrors[] = 'Поле блока статьи "Заголовок" обязательно для заполнения';
 			}
 			if(
 				empty($value["VALUE"]["SORT"])
 				&& ($value["VALUE"]["SORT"] !== 0)
 				&& ($value["VALUE"]["SORT"] !== "0")
-				)
+			)
 			{
-				$arErrors[] = 'Поле "Сортировка" обязательно для заполнения';
+				$arErrors[] = 'Поле блока статьи "Сортировка" обязательно для заполнения';
+			}
+
+			
+			if ( filter_var($value["VALUE"]["SORT"], FILTER_VALIDATE_INT) === false )
+			{
+				$arErrors[] = 'Поле блока статьи "Сортировка" должно быть целым числом';
+			}
+
+			if(CFile::CheckImageFile($value["VALUE"]["IMAGE"], 0, 0, 0, "IMAGE"))
+			{
+				$arErrors[] = 'Загруженный файл не является картинкой. Можно загружать только картинки.';
 			}
 		}
 		
@@ -256,10 +283,41 @@ class ArticleContentsIblockUserProperty
 			!empty($value["VALUE"]["TITLE"])
 			|| !empty($value["VALUE"]["SORT"])
 			|| !empty($value["VALUE"]["DESCRIPTION"])
-			|| !empty($value["VALUE"]["IMAGE"])
+			|| !empty($value["VALUE"]["IMAGE"]["tmp_name"])
+			|| !empty($value["VALUE"]["IMAGE"]["OLD_IMAGE_ID"])
 		)
         {
             try {
+				// Если загружена новая картинка, то сохраняем ее.
+				if(!empty($value["VALUE"]["IMAGE"]["tmp_name"]))
+				{
+					$arUploadedFilePropetries=Array(
+						"name" => $value["VALUE"]["IMAGE"]["name"],
+						"size" => $value["VALUE"]["IMAGE"]["size"],
+						"tmp_name" => $value["VALUE"]["IMAGE"]["tmp_name"],
+						"type" => "",
+						"old_file" => "",
+						"del" => "Y",
+						"MODULE_ID" => "iblock"
+					);
+					$value["VALUE"]["IMAGE"] = CFile::SaveFile($arUploadedFilePropetries, "iblock");
+				}
+				// Если на форме редактирования блока была нажата галочка "Удалить картинку из данного блока"
+				else if(!empty($value["VALUE"]["IMAGE"]["DELETE_OLD_IMAGE"]))
+				{
+					$value["VALUE"]["IMAGE"] = "";
+				}
+				// Если новая картинка не была загружена, но в БД уже хранится ID картинки, то сохраняем в БД ID старой картинки.
+				else if(empty($value["VALUE"]["IMAGE"]["tmp_name"]) && !empty($value["VALUE"]["IMAGE"]["OLD_IMAGE_ID"]))
+				{
+					$value["VALUE"]["IMAGE"] = $value["VALUE"]["IMAGE"]["OLD_IMAGE_ID"];
+				}
+				// Новую картинку не загружали, старой картинки нет. Тогда просто записываем пустую строку.
+				else
+				{
+					$value["VALUE"]["IMAGE"] = "";
+				}
+
                 $value['VALUE'] = base64_encode(serialize($value["VALUE"]));
             } catch(Bitrix\Main\ObjectException $exception) {
             }
